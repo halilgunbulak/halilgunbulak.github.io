@@ -1,0 +1,9 @@
+---
+# Author Details
+author: 'Halil Günbulak'
+defaults:
+  - scope:
+      path: "slides"
+    values:
+      lecture: true
+      layout: lecture
