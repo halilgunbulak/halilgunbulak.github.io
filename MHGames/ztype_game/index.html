@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZType Clone - Space Typing Shooter</title>
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <!-- Main Layout Container -->
+    <div id="main-layout">
+
+        <!-- Left Banner Ad -->
+        <aside class="ad-sidebar left">
+            <div class="ad-placeholder-vertical">
+                <span>AD AREA</span>
+                <small>200px Wide</small>
+            </div>
+            <!-- Paste Left Ad Script Here -->
+        </aside>
+
+        <div id="game-container">
+            <canvas id="gameCanvas"></canvas>
+
+            <div id="ui-layer">
+                <div id="stats">
+                    <span id="label-score">Score</span>: <span id="score">0</span>
+                </div>
+                <div id="space-indicator" class="hidden">BOŞLUĞA BAS</div>
+                <div id="menu-overlay">
+                    <div class="language-switcher">
+                        <button class="lang-btn active" data-lang="tr">TR</button>
+                        <button class="lang-btn" data-lang="en">EN</button>
+                    </div>
+                    <h1 id="menu-title">Z-TYPE KLONU</h1>
+                    <div class="menu-content">
+                        <div class="setting-group">
+                            <label id="label-source">Metin Kaynağı:</label>
+                            <select id="text-library-select">
+                                <option value="random">Rastgele (Random)</option>
+                                <!-- Options populated by JS -->
+                            </select>
+                        </div>
+                        <div class="setting-group">
+                            <label id="label-custom">Kendi Metnini Yapıştır:</label>
+                            <textarea id="custom-text" placeholder="Buraya metin girin..."></textarea>
+                        </div>
+                        <div class="setting-group">
+                            <label id="label-settings">Ayarlar:</label>
+                            <label><input type="checkbox" id="check-case"> <span id="label-case">Büyük/Küçük
+                                    Duyarlı</span></label>
+                            <label><input type="checkbox" id="check-punctuation"> <span id="label-punc">Noktalama
+                                    Eşleştir</span></label>
+                            <label><input type="checkbox" id="check-numbers"> <span id="label-nums">Sayıları
+                                    Eşleştir</span></label>
+                        </div>
+                        <div class="setting-item">
+                            <input type="checkbox" id="require-space" checked>
+                            <label for="require-space" id="label-req-space">Kelimeden Sonra Boşluk Zorunlu</label>
+                        </div>
+                        <button id="start-btn">GÖREVİ BAŞLAT</button>
+                        <div id="controls-hint">Meteorları vurmak için yazın. Size çarpmalarına izin vermeyin.</div>
+                    </div>
+                </div>
+
+                <div id="review-overlay" class="hidden">
+                    <h2 id="rev-title">HATALI KELİMELER</h2>
+                    <div id="review-word"></div>
+                    <p id="rev-hint">Sonraki kelime için SPACE'e basın</p>
+                    <button id="close-review-btn">KAPAT</button>
+                </div>
+
+                <div id="game-over-screen" class="hidden">
+                    <h1 id="go-title">GÖREV BAŞARISIZ</h1>
+                    <p><span id="label-final-score">Final Skor</span>: <span id="final-score">0</span></p>
+                    <div class="button-row">
+                        <button id="restart-game-btn">YENİDEN BAŞLAT</button>
+                        <button id="review-mistakes-btn">HATALARI İNCELE</button>
+                    </div>
+                    <button id="return-menu-btn"
+                        style="margin-top: 10px; font-size: 18px; border-color: var(--neon-blue); color: var(--neon-blue);">MENÜYE
+                        DÖN</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Banner Ad -->
+        <aside class="ad-sidebar right">
+            <div class="ad-placeholder-vertical">
+                <span>AD AREA</span>
+                <small>200px Wide</small>
+            </div>
+            <!-- Paste Right Ad Script Here -->
+        </aside>
+
+    </div>
+
+    <script src="missions_tr.js"></script>
+    <script src="missions_en.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
