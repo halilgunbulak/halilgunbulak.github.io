@@ -60,6 +60,11 @@
                             <label><input type="checkbox" id="check-numbers"> <span id="label-nums">Sayıları
                                     Eşleştir</span></label>
                         </div>
+                        <div class="setting-group">
+                            <label id="label-speed">Seviye (Level):</label>
+                            <input type="range" id="speed-slider" min="1" max="10" value="2" step="1">
+                            <span id="speed-value">2</span>
+                        </div>
                         <div class="setting-item">
                             <input type="checkbox" id="require-space" checked>
                             <label for="require-space" id="label-req-space">Kelimeden Sonra Boşluk Zorunlu</label>
@@ -81,6 +86,7 @@
                     <p><span id="label-final-score">Final Skor</span>: <span id="final-score">0</span></p>
                     <div class="button-row">
                         <button id="restart-game-btn">YENİDEN BAŞLAT</button>
+                        <button id="next-level-btn" class="hidden">SONRAKİ SEVİYE (HIZ ARTIR)</button>
                         <button id="review-mistakes-btn">HATALARI İNCELE</button>
                     </div>
                     <button id="return-menu-btn"

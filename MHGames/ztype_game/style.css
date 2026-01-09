@@ -343,3 +343,60 @@ button:hover {
         width: 100%;
     }
 }
+
+/* Speed Slider Styling */
+#speed-slider {
+    -webkit-appearance: none;
+    width: 200px;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    opacity: 0.7;
+    transition: opacity .2s;
+    border-radius: 5px;
+}
+
+#speed-slider:hover {
+    opacity: 1;
+}
+
+#speed-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: var(--neon-green);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+#speed-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: var(--neon-green);
+    cursor: pointer;
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--neon-green);
+}
+
+#speed-value {
+    color: var(--neon-blue);
+    font-family: var(--font-code);
+    min-width: 40px;
+    text-align: right;
+}
+
+/* Next Level Button */
+#next-level-btn {
+    border-color: var(--neon-pink);
+    color: var(--neon-pink);
+    text-shadow: 0 0 5px var(--neon-pink);
+    box-shadow: 0 0 10px rgba(188, 19, 254, 0.3);
+}
+
+#next-level-btn:hover {
+    background: var(--neon-pink);
+    color: #fff;
+    box-shadow: 0 0 20px var(--neon-pink);
+}

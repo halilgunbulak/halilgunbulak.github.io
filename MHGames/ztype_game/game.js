@@ -26,6 +26,16 @@ const customTextEl = document.getElementById('custom-text');
 const checkCase = document.getElementById('check-case');
 const checkPunc = document.getElementById('check-punctuation');
 const checkNums = document.getElementById('check-numbers');
+const speedSlider = document.getElementById('speed-slider');
+const speedValue = document.getElementById('speed-value');
+const nextLevelBtn = document.getElementById('next-level-btn');
+
+// Speed Slider Logic
+if (speedSlider && speedValue) {
+    speedSlider.addEventListener('input', (e) => {
+        speedValue.innerText = e.target.value;
+    });
+}
 
 // --- Audio System (File Based) ---
 const SHOOT_SOUND = new Audio('sounds/shoot.wav');
@@ -94,8 +104,12 @@ const TRANSLATIONS = {
         closeBtn: "KAPAT",
         pressSpace: "BOŞLUĞA BAS",
         randomWords: "Rastgele (TR)",
-        noMistakes: "HATA YOK (KUSURSUZ)"
+        noMistakes: "HATA YOK (KUSURSUZ)",
+        completeTitle: "GÖREV TAMAMLANDI",
+        nextLevelBtn: "SONRAKİ SEVİYE (HIZ +0.5)",
+        menuBtn: "MENÜ"
     },
+
     en: {
         menuTitle: "Z-TYPE CLONE",
         labelScore: "Score",
@@ -119,9 +133,15 @@ const TRANSLATIONS = {
         closeBtn: "CLOSE",
         pressSpace: "PRESS SPACE",
         randomWords: "Random (EN)",
-        noMistakes: "NO MISTAKES (PERFECT)"
-    }
+        noMistakes: "NO MISTAKES (PERFECT)",
+        completeTitle: "MISSION COMPLETE",
+        nextLevelBtn: "NEXT LEVEL (SPEED +0.5)",
+        menuBtn: "MENU"
+    },
 };
+
+// Add getDifficulty method to Game class later, but for now structure is safe.
+
 
 const DEFAULT_WORDS_TR = [
     'uzay', 'lazer', 'galaksi', 'gezegen', 'roket', 'yıldız', 'yörünge', 'uzaylı',
@@ -183,9 +203,17 @@ class Game {
         this.reviewIndex = 0;
 
         this.currentLang = 'tr';
+        this.level = 2; // Default Level
+        this.speedMultiplier = 1;
+        this.baseSpawnInterval = 2000;
 
         // UI Bindings
-        startBtn.addEventListener('click', () => this.initGame());
+        startBtn.addEventListener('click', () => {
+            // Read level from slider on start
+            this.level = parseInt(speedSlider.value) || 2;
+            this.initGame();
+        });
+        nextLevelBtn.addEventListener('click', () => this.nextLevel());
         restartGameBtn.addEventListener('click', () => {
             this.initGame(true);
         });
@@ -207,6 +235,25 @@ class Game {
         window.addEventListener('keydown', (e) => this.input(e));
 
         this.loop(0);
+    }
+
+    getDifficulty(level) {
+        // Speed: 0.7 base + 0.15 per level
+        // Level 1: 0.85, Level 10: 2.2
+        const speedMult = 0.7 + (level * 0.15);
+
+        // Spawn Interval: Non-linear decrease
+        // Level 1: 2500, Level 2: 2200, Level 10: 600
+        // Formula: 2800 - (level * 250) but clamped
+        // Improve Curve: Large steps at even levels
+        let interval = 2800 - (level * 220);
+        if (interval < 600) interval = 600;
+
+        // Tune specific levels for "Step" feel
+        // Level 2 (Default): ~2360 -> Set to 2200
+        if (level === 2) interval = 2200;
+
+        return { speedMult, spawnInterval: interval };
     }
 
     setLanguage(lang) {
@@ -258,7 +305,9 @@ class Game {
             'rev-title': t.revTitle,
             'rev-hint': t.revHint,
             'close-review-btn': t.closeBtn,
-            'space-indicator': t.pressSpace
+
+            'space-indicator': t.pressSpace,
+            'next-level-btn': t.nextLevelBtn
         };
 
         for (const [id, text] of Object.entries(map)) {
@@ -311,6 +360,28 @@ class Game {
         gameOverScreen.classList.add('hidden');
         reviewOverlay.classList.add('hidden');
         scoreEl.innerText = '0';
+        nextLevelBtn.classList.add('hidden');
+        restartGameBtn.classList.remove('hidden');
+        // Reset speed slider display if needed, but let's keep it as is
+    }
+
+    showMissionComplete() {
+        // Stop current game loop or Input? State is GAMEOVER-ish
+        this.state = 'GAMEOVER';
+        finalScoreEl.innerText = this.score;
+        gameOverScreen.classList.remove('hidden');
+        reviewOverlay.classList.add('hidden');
+        menuOverlay.classList.add('hidden');
+
+        const t = TRANSLATIONS[this.currentLang];
+        document.getElementById('go-title').innerText = t.completeTitle;
+
+        // Show Next Level button, Hide Restart (or keep both?)
+        // User asked for "Level Logic", so presumably Next Level is the main action
+        nextLevelBtn.classList.remove('hidden');
+        restartGameBtn.classList.remove('hidden'); // allow restart same level info
+
+        SoundManager.playShoot(); // Victory sound?
     }
 
     showGameOver() {
@@ -333,6 +404,18 @@ class Game {
         }
     }
 
+    nextLevel() {
+        if (this.level < 10) {
+            this.level++;
+        }
+        // Update slider UI to reflect new level
+        if (speedSlider) {
+            speedSlider.value = this.level;
+            speedValue.innerText = this.level;
+        }
+        this.initGame(true); // Restart with new settings
+    }
+
     initGame(isRestart = false) {
         // Parse settings only if coming from menu, else keep same
         if (!isRestart) {
@@ -341,6 +424,15 @@ class Game {
                 punctuation: checkPunc.checked,
                 numbers: checkNums.checked
             };
+
+            // Level handling
+            if (!this.level) this.level = parseInt(speedSlider.value) || 2;
+
+            // Algorithmic Difficulty
+            const diff = this.getDifficulty(this.level);
+            this.speedMultiplier = diff.speedMult;
+            this.spawnInterval = diff.spawnInterval;
+            this.baseSpawnInterval = diff.spawnInterval; // Remember starting interval
 
             const rawTextCustom = customTextEl.value;
             const selectVal = document.getElementById('text-library-select').value;
@@ -375,7 +467,7 @@ class Game {
         this.spawnInterval = 2000;
         this.activeEnemy = null;
         this.mistakeWords = [];
-        this.requireSpace = false;
+
         this.waitingForSpace = false;
         this.spaceIndicatorEl = document.getElementById('space-indicator');
 
@@ -384,6 +476,12 @@ class Game {
         gameOverScreen.classList.add('hidden');
         reviewOverlay.classList.add('hidden');
         scoreEl.innerText = '0';
+
+        // Reset Game Over title to failure
+        const t = TRANSLATIONS[this.currentLang];
+        document.getElementById('go-title').innerText = t.goTitle;
+        nextLevelBtn.classList.add('hidden');
+        restartGameBtn.classList.remove('hidden');
 
         // Audio init removed here as SoundManager handles it lazily or on load
         // audio.playTone(0, 'sine', 0, 0);
@@ -432,6 +530,14 @@ class Game {
             if (e.code === 'Space') {
                 this.waitingForSpace = false;
                 this.spaceIndicatorEl.classList.add('hidden');
+
+                // PUSHBACK MECHANIC
+                this.enemies.forEach(en => {
+                    en.y = Math.max(-50, en.y - 20); // Move up 20px
+                });
+
+                // Visual Effect
+                this.particles.push(new Shockwave(this.player.x, this.player.y));
             }
             return;
         }
@@ -485,7 +591,9 @@ class Game {
 
             this.score += 10;
             scoreEl.innerText = this.score;
-            if (this.spawnInterval > 400) this.spawnInterval -= 20;
+
+            // Damped acceleration: decrease interval by 2ms instead of 20ms
+            if (this.spawnInterval > 400) this.spawnInterval -= 2;
 
             if (this.requireSpace) {
                 this.waitingForSpace = true;
@@ -505,16 +613,20 @@ class Game {
     update(dt) {
         if (this.state !== 'PLAYING') return;
 
-        if (!this.waitingForSpace) {
-            this.spawnTimer += dt;
-            if (this.spawnTimer > this.spawnInterval) {
-                this.spawnTimer = 0;
-                if (this.pool.length > 0) {
-                    const word = this.pool[this.currentWordIndex];
-                    this.currentWordIndex = (this.currentWordIndex + 1) % this.pool.length;
-                    const x = Math.random() * (this.width - 150) + 75;
-                    this.enemies.push(new Meteor(x, -50, word));
-                }
+        // Check for mission complete
+        if (this.pool.length === 0 && this.enemies.length === 0 && this.state === 'PLAYING') {
+            this.showMissionComplete();
+            return;
+        }
+
+        this.spawnTimer += dt;
+        if (this.spawnTimer > this.spawnInterval) {
+            this.spawnTimer = 0;
+            if (this.pool.length > 0) {
+                const word = this.pool[this.currentWordIndex];
+                this.currentWordIndex = (this.currentWordIndex + 1) % this.pool.length;
+                const x = Math.random() * (this.width - 150) + 75;
+                this.enemies.push(new Meteor(x, -50, word, this.speedMultiplier));
             }
         }
 
@@ -613,12 +725,12 @@ class Player {
 }
 
 class Meteor {
-    constructor(x, y, word) {
+    constructor(x, y, word, speedMult = 1) {
         this.x = x;
         this.y = y;
         this.word = word;
         this.typed = 0;
-        this.speed = 0.03 + Math.random() * 0.04;
+        this.speed = (0.03 + Math.random() * 0.04) * speedMult;
         this.radius = 25; // Image size approx
         this.color = '#888';
         this.rotation = 0;
@@ -713,6 +825,36 @@ class Projectile {
         ctx.strokeStyle = '#0aff0a';
         ctx.lineWidth = 3;
         ctx.stroke();
+    }
+}
+
+class Shockwave {
+    constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 10;
+        this.maxRadius = canvas.height; // Expand to cover mostly
+        this.speed = 40; // Fast expansion
+        this.alpha = 1;
+        this.width = 10;
+    }
+
+    update(dt) {
+        this.radius += this.speed * (dt / 16);
+        this.alpha -= 0.02 * (dt / 16);
+        this.width -= 0.2 * (dt / 16);
+    }
+
+    draw(ctx) {
+        if (this.alpha <= 0) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        // Deep Sky Blue
+        ctx.strokeStyle = `rgba(0, 191, 255, ${this.alpha})`;
+        ctx.lineWidth = Math.max(1, this.width);
+        ctx.stroke();
+        ctx.restore();
     }
 }
 
