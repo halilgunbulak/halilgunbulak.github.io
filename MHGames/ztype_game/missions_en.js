@@ -1,7 +1,8 @@
 const MISSIONS_EN = [
     {
         "header": "Mission 1: Sector A",
-        "body": "Hello World. This is Z-Type clone. Spaceship ready. Meteors approaching. Be careful. Protect our language. Umbrella, flower, insect, tree, mountain, hill, river, stream, lake, sea, ocean, continent, country, city, town, village, neighborhood, street, avenue, boulevard."
+        "body": "Hello World. This is ." +
+            " Spaceship ready. Meteors approaching. Be careful. Protect our language. Umbrella, flower, insect, tree, mountain, hill, river, stream, lake, sea, ocean, continent, country, city, town, village, neighborhood, street, avenue, boulevard."
     },
     {
         "header": "Mission 2: Sector B",

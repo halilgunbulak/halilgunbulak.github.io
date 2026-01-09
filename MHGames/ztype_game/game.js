@@ -32,8 +32,17 @@ const nextLevelBtn = document.getElementById('next-level-btn');
 
 // Speed Slider Logic
 if (speedSlider && speedValue) {
+    // Load saved level or default to 4
+    const savedLevel = localStorage.getItem('ztype_level');
+    const defaultLevel = savedLevel ? parseInt(savedLevel) : 4;
+    speedSlider.value = defaultLevel;
+    speedValue.innerText = defaultLevel;
+
     speedSlider.addEventListener('input', (e) => {
-        speedValue.innerText = e.target.value;
+        const newLevel = e.target.value;
+        speedValue.innerText = newLevel;
+        // Save to localStorage
+        localStorage.setItem('ztype_level', newLevel);
     });
 }
 
@@ -46,43 +55,79 @@ SHOOT_SOUND.load();
 EXPLOSION_SOUND.load();
 
 class SoundManager {
+    static ctx = null;
+
+    static init() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    }
+
+    static playTone(freq, type, duration) {
+        this.init();
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    }
+
     static playShoot() {
-        // Clone to allow overlapping sounds
-        const s = SHOOT_SOUND.cloneNode();
-        s.volume = 0.3;
-        s.play().catch(e => console.log("Audio play failed", e));
+        try {
+            const s = SHOOT_SOUND.cloneNode();
+            s.volume = 0.3;
+            s.play().catch(e => {
+                // Fallback to synth if file fails
+                this.playTone(600, 'square', 0.05);
+            });
+        } catch (e) {
+            this.playTone(600, 'square', 0.05);
+        }
     }
 
     static playExplosion() {
-        const s = EXPLOSION_SOUND.cloneNode();
-        s.volume = 0.4;
-        s.play().catch(e => console.log("Audio play failed", e));
+        try {
+            const s = EXPLOSION_SOUND.cloneNode();
+            s.volume = 0.4;
+            s.play().catch(e => {
+                this.playTone(100, 'triangle', 0.3);
+            });
+        } catch (e) {
+            this.playTone(100, 'triangle', 0.3);
+        }
     }
 
     static playError() {
-        // Simple synth fallback for error or just ignore
-        // Or load error.wav if we had one. 
-        // Let's use a tiny synth beep or silence for now to keep it simple pure file based?
-        // Or just re-use synth for error? User specifically asked for Shoot/Explosion as files.
-        // Let's create a minimal oscillator for Error just in case, or ignore.
-        // I will allow simple beep.
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = 150;
-        gain.gain.value = 0.1;
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start();
-        osc.stop(ctx.currentTime + 0.1);
+        this.playTone(150, 'triangle', 0.1);
+    }
+
+    static playLevelUp() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [440, 554, 659, 880].forEach((freq, i) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, now + i * 0.1);
+            gain.gain.setValueAtTime(0.3, now + i * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.3);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + i * 0.1);
+            osc.stop(now + i * 0.1 + 0.3);
+        });
     }
 }
 
 // --- Localization System ---
 const TRANSLATIONS = {
     tr: {
-        menuTitle: "Z-TYPE KLONU",
+        menuTitle: "H&M -HIGames",
         labelScore: "Skor",
         labelSource: "Metin Kaynağı",
         labelCustom: "Kendi Metnini Yapıştır",
@@ -107,11 +152,27 @@ const TRANSLATIONS = {
         noMistakes: "HATA YOK (KUSURSUZ)",
         completeTitle: "GÖREV TAMAMLANDI",
         nextLevelBtn: "SONRAKİ SEVİYE (HIZ +0.5)",
-        menuBtn: "MENÜ"
+        nextMissionBtn: "SONRAKİ GÖREV (YENİ METİN)",
+        labelLevel: "Seviye",
+        menuBtn: "MENÜ",
+        pauseTitle: "OYUN DURAKLATILDI",
+        resumeBtn: "DEVAM ET",
+        pauseMenuBtn: "MENÜYE DÖN",
+        levelCompleteTitle: "SEVİYE TAMAMLANDI!",
+        levelCompleteMsg: "Tüm kelimeleri başarıyla tamamladınız!",
+        increaseSpeedBtn: "HIZI ARTIR VE DEVAM ET",
+        newTextBtn: "YENİ METİN İLE DEVAM ET",
+        labelCurrentScore: "Mevcut Skor",
+        textSelectionTitle: "METİN SEÇİN",
+        textSelectionMsg: "Devam etmek için bir metin seçin:",
+        textSelectionCancel: "İPTAL",
+        mistakeCountLabel: "Hatalı Kelime",
+        retryMistakesBtn: "HATALI KELİMELERLE OYNA",
+        gameoverNewTextBtn: "YENİ METİN SEÇ"
     },
 
     en: {
-        menuTitle: "Z-TYPE CLONE",
+        menuTitle: "H&M - HIGAMES",
         labelScore: "Score",
         labelSource: "Text Source",
         labelCustom: "Paste Custom Text",
@@ -136,7 +197,23 @@ const TRANSLATIONS = {
         noMistakes: "NO MISTAKES (PERFECT)",
         completeTitle: "MISSION COMPLETE",
         nextLevelBtn: "NEXT LEVEL (SPEED +0.5)",
-        menuBtn: "MENU"
+        nextMissionBtn: "NEXT MISSION (NEW TEXT)",
+        labelLevel: "Level",
+        menuBtn: "MENU",
+        pauseTitle: "GAME PAUSED",
+        resumeBtn: "RESUME",
+        pauseMenuBtn: "EXIT TO MENU",
+        levelCompleteTitle: "LEVEL COMPLETE!",
+        levelCompleteMsg: "You've successfully completed all words!",
+        increaseSpeedBtn: "INCREASE SPEED & CONTINUE",
+        newTextBtn: "NEW TEXT & CONTINUE",
+        labelCurrentScore: "Current Score",
+        textSelectionTitle: "SELECT TEXT",
+        textSelectionMsg: "Choose a text to continue:",
+        textSelectionCancel: "CANCEL",
+        mistakeCountLabel: "Mistakes",
+        retryMistakesBtn: "PLAY WITH MISTAKES",
+        gameoverNewTextBtn: "SELECT NEW TEXT"
     },
 };
 
@@ -203,19 +280,33 @@ class Game {
         this.reviewIndex = 0;
 
         this.currentLang = 'tr';
-        this.level = 2; // Default Level
+
+        // Load saved level from localStorage, default to 4
+        const savedLevel = localStorage.getItem('ztype_level');
+        this.level = savedLevel ? parseInt(savedLevel) : 4;
+
         this.speedMultiplier = 1;
         this.baseSpawnInterval = 2000;
+        this.currentLibraryIndex = -1; // -1 for random or none
+        this.userSelectedText = false; // Kullanıcı metin seçti mi?
 
         // UI Bindings
         startBtn.addEventListener('click', () => {
             // Read level from slider on start
-            this.level = parseInt(speedSlider.value) || 2;
-            this.initGame();
+            this.level = parseInt(speedSlider.value) || 4;
+            // Save to localStorage
+            localStorage.setItem('ztype_level', this.level);
+
+            // Check if user selected a text
+            const selectVal = document.getElementById('text-library-select').value;
+            const customText = customTextEl.value.trim();
+            this.userSelectedText = (selectVal !== 'random' || customText.length > 0);
+
+            this.initGame({ resetScore: true });
         });
         nextLevelBtn.addEventListener('click', () => this.nextLevel());
         restartGameBtn.addEventListener('click', () => {
-            this.initGame(true);
+            this.initGame(true); // Restart = reset score
         });
         returnMenuBtn.addEventListener('click', () => this.showMenu());
         reviewMistakesBtn.addEventListener('click', () => this.startReview());
@@ -229,8 +320,52 @@ class Game {
             });
         });
 
-        // Initial language update
+        // Other UI Bindings
+        const nextMissionBtn = document.getElementById('next-mission-btn');
+        if (nextMissionBtn) nextMissionBtn.addEventListener('click', () => this.nextMission());
+
+        const resumeBtn = document.getElementById('resume-btn');
+        if (resumeBtn) resumeBtn.addEventListener('click', () => this.resumeGame());
+
+        const pauseMenuBtn = document.getElementById('pause-to-menu-btn');
+        if (pauseMenuBtn) pauseMenuBtn.addEventListener('click', () => this.showMenu());
+
+        const increaseSpeedBtn = document.getElementById('increase-speed-btn');
+        if (increaseSpeedBtn) increaseSpeedBtn.addEventListener('click', () => this.increaseSpeedAndContinue());
+
+        const newTextBtn = document.getElementById('new-text-btn');
+        if (newTextBtn) newTextBtn.addEventListener('click', () => this.newTextAndContinue());
+
+        const levelCompleteMenuBtn = document.getElementById('level-complete-menu-btn');
+        if (levelCompleteMenuBtn) levelCompleteMenuBtn.addEventListener('click', () => this.showMenu());
+
+        const retryMistakesBtn = document.getElementById('retry-mistakes-btn');
+        if (retryMistakesBtn) retryMistakesBtn.addEventListener('click', () => this.retryWithMistakes());
+
+        const textSelectionCancelBtn = document.getElementById('text-selection-cancel-btn');
+        if (textSelectionCancelBtn) textSelectionCancelBtn.addEventListener('click', () => {
+            // Eğer game over'dan geldiyse game over'a dön, değilse level complete'e dön
+            if (this.cameFromGameOver) {
+                this.showGameOver();
+            } else {
+                this.showLevelComplete();
+            }
+        });
+
+        const gameoverRetryMistakesBtn = document.getElementById('gameover-retry-mistakes-btn');
+        if (gameoverRetryMistakesBtn) gameoverRetryMistakesBtn.addEventListener('click', () => this.retryWithMistakes());
+
+        const gameoverNewTextBtn = document.getElementById('gameover-new-text-btn');
+        if (gameoverNewTextBtn) gameoverNewTextBtn.addEventListener('click', () => {
+            this.cameFromGameOver = true;
+            this.showTextSelection();
+        });
+
         this.setLanguage('tr');
+
+        // Update level display on load
+        const lvlDisp = document.getElementById('level-display');
+        if (lvlDisp) lvlDisp.innerText = this.level;
 
         window.addEventListener('keydown', (e) => this.input(e));
 
@@ -238,20 +373,20 @@ class Game {
     }
 
     getDifficulty(level) {
-        // Speed: 0.7 base + 0.15 per level
-        // Level 1: 0.85, Level 10: 2.2
-        const speedMult = 0.7 + (level * 0.15);
+        // Speed: Daha yumuşak artış - 0.6 base + 0.12 per level
+        // Level 1: 0.72, Level 5: 1.2, Level 10: 1.8
+        const speedMult = 0.6 + (level * 0.12);
 
-        // Spawn Interval: Non-linear decrease
-        // Level 1: 2500, Level 2: 2200, Level 10: 600
-        // Formula: 2800 - (level * 250) but clamped
-        // Improve Curve: Large steps at even levels
-        let interval = 2800 - (level * 220);
-        if (interval < 600) interval = 600;
+        // Spawn Interval: Level'e göre daha dengeli azalma
+        // Level 1: 2400ms, Level 2: 2200ms, Level 5: 1600ms, Level 10: 1000ms
+        // Formula: Daha yumuşak bir eğri
+        let interval = 2600 - (level * 160);
+        if (interval < 800) interval = 800; // Minimum 800ms
 
-        // Tune specific levels for "Step" feel
-        // Level 2 (Default): ~2360 -> Set to 2200
+        // Özel ayarlamalar
+        if (level === 1) interval = 2400;
         if (level === 2) interval = 2200;
+        if (level === 3) interval = 2000;
 
         return { speedMult, spawnInterval: interval };
     }
@@ -268,7 +403,7 @@ class Game {
                 text: item.body
             }));
         } catch (e) {
-            console.error("Metin kütüphanesi yüklenemedi / Failed to load missions:", e);
+            console.error("Metin kütüphanesi yüklenemedi:", e);
             TEXT_LIBRARY = [];
         }
 
@@ -288,6 +423,7 @@ class Game {
         const map = {
             'menu-title': t.menuTitle,
             'label-score': t.labelScore,
+            'label-level': t.labelLevel,
             'label-source': t.labelSource,
             'label-custom': t.labelCustom,
             'label-settings': t.labelSettings,
@@ -307,7 +443,22 @@ class Game {
             'close-review-btn': t.closeBtn,
 
             'space-indicator': t.pressSpace,
-            'next-level-btn': t.nextLevelBtn
+            'next-level-btn': t.nextLevelBtn,
+            'next-mission-btn': t.nextMissionBtn,
+            'pause-title': t.pauseTitle,
+            'resume-btn': t.resumeBtn,
+            'pause-to-menu-btn': t.pauseMenuBtn,
+            'level-complete-title': t.levelCompleteTitle,
+            'level-complete-message': t.levelCompleteMsg,
+            'increase-speed-btn': t.increaseSpeedBtn,
+            'new-text-btn': t.newTextBtn,
+            'label-current-score': t.labelCurrentScore,
+            'text-selection-title': t.textSelectionTitle,
+            'text-selection-message': t.textSelectionMsg,
+            'text-selection-cancel-btn': t.textSelectionCancel,
+            'retry-mistakes-btn': t.retryMistakesBtn,
+            'gameover-retry-mistakes-btn': t.retryMistakesBtn,
+            'gameover-new-text-btn': t.gameoverNewTextBtn
         };
 
         for (const [id, text] of Object.entries(map)) {
@@ -359,40 +510,89 @@ class Game {
         menuOverlay.classList.remove('hidden');
         gameOverScreen.classList.add('hidden');
         reviewOverlay.classList.add('hidden');
+        document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('level-complete-screen').classList.add('hidden');
+        document.getElementById('text-selection-screen').classList.add('hidden');
         scoreEl.innerText = '0';
         nextLevelBtn.classList.add('hidden');
         restartGameBtn.classList.remove('hidden');
         // Reset speed slider display if needed, but let's keep it as is
     }
 
-    showMissionComplete() {
-        // Stop current game loop or Input? State is GAMEOVER-ish
-        this.state = 'GAMEOVER';
-        finalScoreEl.innerText = this.score;
-        gameOverScreen.classList.remove('hidden');
+    showLevelComplete() {
+        // Yeni level atlama ekranı
+        this.state = 'LEVEL_COMPLETE';
+        this.cameFromGameOver = false; // Reset flag
+        const currentScoreEl = document.getElementById('current-score');
+        if (currentScoreEl) currentScoreEl.innerText = this.score;
+
+        // Hatalı kelime sayısını göster
+        const mistakeCountEl = document.getElementById('mistake-count');
+        if (mistakeCountEl) mistakeCountEl.innerText = this.mistakeWords.length;
+
+        // Hatalı kelime varsa butonu göster
+        const retryMistakesBtn = document.getElementById('retry-mistakes-btn');
+        if (retryMistakesBtn) {
+            if (this.mistakeWords.length > 0) {
+                retryMistakesBtn.classList.remove('hidden');
+            } else {
+                retryMistakesBtn.classList.add('hidden');
+            }
+        }
+
+        // Hatalı kelime sayısı metnini güncelle
+        const t = TRANSLATIONS[this.currentLang];
+        const mistakeCountDisplay = document.getElementById('mistake-count-display');
+        if (mistakeCountDisplay) {
+            mistakeCountDisplay.innerHTML = `${t.mistakeCountLabel}: <span id="mistake-count">${this.mistakeWords.length}</span>`;
+        }
+
+        document.getElementById('level-complete-screen').classList.remove('hidden');
+        gameOverScreen.classList.add('hidden');
         reviewOverlay.classList.add('hidden');
         menuOverlay.classList.add('hidden');
+        document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('text-selection-screen').classList.add('hidden');
 
-        const t = TRANSLATIONS[this.currentLang];
-        document.getElementById('go-title').innerText = t.completeTitle;
+        SoundManager.playLevelUp(); // Victory sound
+    }
 
-        // Show Next Level button, Hide Restart (or keep both?)
-        // User asked for "Level Logic", so presumably Next Level is the main action
-        nextLevelBtn.classList.remove('hidden');
-        restartGameBtn.classList.remove('hidden'); // allow restart same level info
-
-        SoundManager.playShoot(); // Victory sound?
+    showMissionComplete() {
+        // Eski görev tamamlama ekranı (artık kullanılmıyor, level complete kullanılıyor)
+        this.showLevelComplete();
     }
 
     showGameOver() {
         this.state = 'GAMEOVER';
+        this.cameFromGameOver = false; // Reset flag
         finalScoreEl.innerText = this.score;
         gameOverScreen.classList.remove('hidden');
         reviewOverlay.classList.add('hidden');
         menuOverlay.classList.add('hidden');
+        document.getElementById('text-selection-screen').classList.add('hidden');
+
+        // Hatalı kelime sayısını göster
+        const gameoverMistakeCountEl = document.getElementById('gameover-mistake-count');
+        if (gameoverMistakeCountEl) gameoverMistakeCountEl.innerText = this.mistakeWords.length;
+
+        // Hatalı kelime varsa butonu göster
+        const gameoverRetryMistakesBtn = document.getElementById('gameover-retry-mistakes-btn');
+        if (gameoverRetryMistakesBtn) {
+            if (this.mistakeWords.length > 0) {
+                gameoverRetryMistakesBtn.classList.remove('hidden');
+            } else {
+                gameoverRetryMistakesBtn.classList.add('hidden');
+            }
+        }
+
+        // Hatalı kelime sayısı metnini güncelle
+        const t = TRANSLATIONS[this.currentLang];
+        const gameoverMistakeCountDisplay = document.getElementById('gameover-mistake-count-display');
+        if (gameoverMistakeCountDisplay) {
+            gameoverMistakeCountDisplay.innerHTML = `${t.mistakeCountLabel}: <span id="gameover-mistake-count">${this.mistakeWords.length}</span>`;
+        }
 
         // Disable Review button if no mistakes
-        const t = TRANSLATIONS[this.currentLang];
         if (this.mistakeWords.length === 0) {
             reviewMistakesBtn.disabled = true;
             reviewMistakesBtn.style.opacity = '0.5';
@@ -413,78 +613,248 @@ class Game {
             speedSlider.value = this.level;
             speedValue.innerText = this.level;
         }
-        this.initGame(true); // Restart with new settings
+        // Trigger Effect
+        this.showLevelUpEffect();
+        SoundManager.playLevelUp();
+
+        this.initGame({ resetScore: false, keepSettings: true });
     }
 
-    initGame(isRestart = false) {
-        // Parse settings only if coming from menu, else keep same
-        if (!isRestart) {
+    showLevelUpEffect() {
+        // Visual +1
+        const el = document.createElement('div');
+        el.className = 'level-up-anim';
+        el.innerText = "+1 LEVEL UP!";
+
+        // Position near top right or center
+        const stats = document.getElementById('level-stats');
+        if (stats) {
+            const rect = stats.getBoundingClientRect();
+            el.style.top = (rect.top + 30) + 'px';
+            el.style.left = (rect.left - 50) + 'px';
+        } else {
+            el.style.top = '100px';
+            el.style.right = '50px';
+        }
+
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 1500);
+    }
+
+    increaseSpeedAndContinue() {
+        // Hızı artır (level'i artır) ve aynı metinle devam et
+        if (this.level < 10) {
+            this.level++;
+        }
+
+        // Save to localStorage
+        localStorage.setItem('ztype_level', this.level);
+
+        // Slider'ı güncelle
+        if (speedSlider) {
+            speedSlider.value = this.level;
+            speedValue.innerText = this.level;
+        }
+
+        // Level display'i güncelle
+        const lvlDisp = document.getElementById('level-display');
+        if (lvlDisp) lvlDisp.innerText = this.level;
+
+        // Aynı metinle devam et, skoru koru
+        this.initGame({ resetScore: false, keepSettings: true, sameText: true });
+
+        SoundManager.playLevelUp();
+    }
+
+    newTextAndContinue() {
+        // Metin seçim ekranını göster
+        this.showTextSelection();
+    }
+
+    showTextSelection() {
+        this.state = 'TEXT_SELECTION';
+        document.getElementById('text-selection-screen').classList.remove('hidden');
+        document.getElementById('level-complete-screen').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+
+        // Metin listesini doldur
+        const container = document.getElementById('text-list-container');
+        container.innerHTML = '';
+
+        TEXT_LIBRARY.forEach((item, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'text-option';
+            btn.innerText = item.title;
+            btn.addEventListener('click', () => this.selectText(index));
+            container.appendChild(btn);
+        });
+    }
+
+    selectText(index) {
+        this.currentLibraryIndex = index;
+        this.userSelectedText = true;
+
+        // Seçilen metinle devam et, skoru koru
+        this.initGame({ resetScore: false, keepSettings: false, libraryIndex: this.currentLibraryIndex });
+
+        SoundManager.playShoot();
+    }
+
+    retryWithMistakes() {
+        // Hatalı kelimelerle oyna
+        if (this.mistakeWords.length === 0) return;
+
+        // Hatalı kelimeleri pool olarak kullan
+        this.pool = [...this.mistakeWords]; // Kopyasını al
+        this.currentWordIndex = 0;
+
+        // Hız ayarlarını güncelle
+        const diff = this.getDifficulty(this.level);
+        this.speedMultiplier = diff.speedMult;
+        this.spawnInterval = diff.spawnInterval;
+        this.baseSpawnInterval = diff.spawnInterval;
+
+        // Oyunu başlat
+        this.player = new Player(this.width / 2, this.height - 50);
+        this.enemies = [];
+        this.particles = [];
+        this.projectiles = [];
+        this.spawnTimer = 0;
+        this.activeEnemy = null;
+        this.mistakeWords = []; // Yeni hataları kaydetmek için sıfırla
+        this.waitingForSpace = false;
+        this.state = 'PLAYING';
+
+        document.getElementById('level-complete-screen').classList.add('hidden');
+        document.getElementById('text-selection-screen').classList.add('hidden');
+        menuOverlay.classList.add('hidden');
+        gameOverScreen.classList.add('hidden');
+        reviewOverlay.classList.add('hidden');
+        document.getElementById('pause-screen').classList.add('hidden');
+
+        SoundManager.playShoot();
+    }
+
+    nextMission() {
+        // Increment Index
+        this.currentLibraryIndex++;
+        if (this.currentLibraryIndex >= TEXT_LIBRARY.length) {
+            this.currentLibraryIndex = 0; // Loop back to start
+        }
+        this.userSelectedText = true;
+        // Keep score, but load new text
+        this.initGame({ resetScore: false, keepSettings: false, libraryIndex: this.currentLibraryIndex });
+    }
+
+    pauseGame() {
+        if (this.state !== 'PLAYING') return;
+        this.state = 'PAUSED';
+        document.getElementById('pause-screen').classList.remove('hidden');
+    }
+
+    resumeGame() {
+        if (this.state !== 'PAUSED') return;
+        this.state = 'PLAYING';
+        document.getElementById('pause-screen').classList.add('hidden');
+    }
+
+    gameOver() {
+        this.showGameOver();
+    }
+
+    initGame(options = {}) {
+        const lvlDisp = document.getElementById('level-display');
+        if (lvlDisp) lvlDisp.innerText = this.level || 2;
+
+        const isRestart = (typeof options === 'boolean') ? options : false;
+        if (isRestart) options = { resetScore: true, keepSettings: true };
+
+        if (options.resetScore === undefined) options.resetScore = true;
+        if (options.keepSettings === undefined) options.keepSettings = false;
+
+        // Eğer sameText true ise, mevcut pool'u koru ve başa sar
+        if (options.sameText && this.pool && this.pool.length > 0) {
+            // Sadece hız ayarlarını güncelle
+            const diff = this.getDifficulty(this.level);
+            this.speedMultiplier = diff.speedMult;
+            this.spawnInterval = diff.spawnInterval;
+            this.baseSpawnInterval = diff.spawnInterval;
+            this.currentWordIndex = 0; // Kelimeleri baştan başlat
+        } else if (!options.keepSettings || options.libraryIndex !== undefined) {
             this.settings = {
                 caseSensitive: checkCase.checked,
                 punctuation: checkPunc.checked,
                 numbers: checkNums.checked
             };
-
-            // Level handling
             if (!this.level) this.level = parseInt(speedSlider.value) || 2;
-
-            // Algorithmic Difficulty
             const diff = this.getDifficulty(this.level);
             this.speedMultiplier = diff.speedMult;
             this.spawnInterval = diff.spawnInterval;
-            this.baseSpawnInterval = diff.spawnInterval; // Remember starting interval
+            this.baseSpawnInterval = diff.spawnInterval;
 
             const rawTextCustom = customTextEl.value;
             const selectVal = document.getElementById('text-library-select').value;
-
             let sourceText = "";
 
             if (rawTextCustom.trim().length > 0) {
+                // Kullanıcı özel metin girmiş
                 sourceText = rawTextCustom;
+                this.userSelectedText = true;
+            } else if (this.currentLibraryIndex !== -1 && TEXT_LIBRARY[this.currentLibraryIndex]) {
+                // Programatik olarak seçilmiş metin (nextMission, selectText vb.)
+                sourceText = TEXT_LIBRARY[this.currentLibraryIndex].text;
+                this.userSelectedText = true;
             } else if (selectVal !== 'random' && TEXT_LIBRARY[selectVal]) {
+                // Kullanıcı dropdown'dan metin seçmiş
                 sourceText = TEXT_LIBRARY[selectVal].text;
+                this.userSelectedText = true;
+            } else if (selectVal === 'random' || !this.userSelectedText) {
+                // Rastgele seçim - metinler arasından rastgele seç
+                if (TEXT_LIBRARY.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * TEXT_LIBRARY.length);
+                    sourceText = TEXT_LIBRARY[randomIndex].text;
+                    this.currentLibraryIndex = randomIndex;
+                } else {
+                    sourceText = "";
+                }
             }
 
             this.pool = WordManager.process(sourceText, this.settings);
-            if (this.pool.length === 0) this.pool = DEFAULT_WORDS; // Fallback
-
-            this.currentWordIndex = 0; // Reset index
-
-            // Read new setting
+            if (this.pool.length === 0) this.pool = DEFAULT_WORDS;
+            this.currentWordIndex = 0;
             const reqSpaceEl = document.getElementById('require-space');
             this.requireSpace = reqSpaceEl ? reqSpaceEl.checked : false;
         } else {
-            this.currentWordIndex = 0; // Reset order on restart too
-            // Keep this.pool and this.settings
+            this.currentWordIndex = 0;
         }
 
         this.player = new Player(this.width / 2, this.height - 50);
         this.enemies = [];
         this.particles = [];
         this.projectiles = [];
-        this.score = 0;
+        if (options.resetScore) {
+            this.score = 0;
+            scoreEl.innerText = '0';
+        }
         this.spawnTimer = 0;
-        this.spawnInterval = 2000;
         this.activeEnemy = null;
         this.mistakeWords = [];
-
         this.waitingForSpace = false;
-        this.spaceIndicatorEl = document.getElementById('space-indicator');
-
         this.state = 'PLAYING';
+
         menuOverlay.classList.add('hidden');
         gameOverScreen.classList.add('hidden');
         reviewOverlay.classList.add('hidden');
-        scoreEl.innerText = '0';
+        document.getElementById('pause-screen').classList.add('hidden');
+        document.getElementById('level-complete-screen').classList.add('hidden');
+        document.getElementById('text-selection-screen').classList.add('hidden');
 
-        // Reset Game Over title to failure
         const t = TRANSLATIONS[this.currentLang];
         document.getElementById('go-title').innerText = t.goTitle;
         nextLevelBtn.classList.add('hidden');
+        const nextMisBtn = document.getElementById('next-mission-btn');
+        if (nextMisBtn) nextMisBtn.classList.add('hidden');
         restartGameBtn.classList.remove('hidden');
-
-        // Audio init removed here as SoundManager handles it lazily or on load
-        // audio.playTone(0, 'sine', 0, 0);
     }
 
     startReview() {
@@ -496,18 +866,21 @@ class Game {
     }
 
     showReviewWord() {
+        const t = TRANSLATIONS[this.currentLang];
         if (this.reviewIndex < this.mistakeWords.length) {
             reviewWordEl.innerText = this.mistakeWords[this.reviewIndex];
         } else {
-            // Done
-            reviewWordEl.innerText = TRANSLATIONS[this.currentLang].revComplete;
+            reviewWordEl.innerText = t.revComplete;
         }
     }
 
     input(e) {
-        // ESC key to return to menu during game
-        if (e.key === 'Escape') {
-            this.showMenu();
+        if (this.state === 'MENU') return;
+
+        if (e.code === 'Escape') {
+            if (this.state === 'PLAYING') this.pauseGame();
+            else if (this.state === 'PAUSED') this.resumeGame();
+            else this.showMenu();
             return;
         }
 
@@ -525,18 +898,12 @@ class Game {
 
         if (this.state !== 'PLAYING') return;
 
-        // Space Mechanic Logic
         if (this.waitingForSpace) {
             if (e.code === 'Space') {
                 this.waitingForSpace = false;
-                this.spaceIndicatorEl.classList.add('hidden');
-
-                // PUSHBACK MECHANIC
-                this.enemies.forEach(en => {
-                    en.y = Math.max(-50, en.y - 20); // Move up 20px
-                });
-
-                // Visual Effect
+                const spcInd = document.getElementById('space-indicator');
+                if (spcInd) spcInd.classList.add('hidden');
+                this.enemies.forEach(en => { en.y = Math.max(-50, en.y - 20); });
                 this.particles.push(new Shockwave(this.player.x, this.player.y));
             }
             return;
@@ -546,40 +913,29 @@ class Game {
         if (e.key.length > 1) return;
 
         let key = e.key;
-        if (!this.settings.caseSensitive) {
-            key = key.toLocaleLowerCase('tr-TR');
-        }
+        if (!this.settings.caseSensitive) key = key.toLocaleLowerCase('tr-TR');
 
         if (this.activeEnemy) {
-            if (this.activeEnemy.peekNextChar(this.settings) === key) {
-                this.fireAt(this.activeEnemy);
-            } else {
-                this.logMistake(this.activeEnemy.word);
-                SoundManager.playError();
-            }
+            if (this.activeEnemy.peekNextChar(this.settings) === key) this.fireAt(this.activeEnemy);
+            else { this.logMistake(this.activeEnemy.word); SoundManager.playError(); }
         } else {
             const candidates = this.enemies.filter(en => en.peekNextChar(this.settings) === key);
             if (candidates.length > 0) {
                 candidates.sort((a, b) => b.y - a.y);
                 this.activeEnemy = candidates[0];
                 this.fireAt(this.activeEnemy);
-            } else {
-                SoundManager.playError();
-            }
+            } else SoundManager.playError();
         }
     }
 
     logMistake(word) {
-        if (!this.mistakeWords.includes(word)) {
-            this.mistakeWords.push(word);
-        }
+        if (!this.mistakeWords.includes(word)) this.mistakeWords.push(word);
     }
 
     fireAt(enemy) {
         SoundManager.playShoot();
         this.projectiles.push(new Projectile(this.player.x, this.player.y, enemy));
         enemy.hit();
-
         const angle = Math.atan2(enemy.y - this.player.y, enemy.x - this.player.x);
         this.player.targetAngle = angle + Math.PI / 2;
 
@@ -588,50 +944,43 @@ class Game {
             this.spawnDebris(enemy.x, enemy.y, 20, enemy.color);
             this.enemies.splice(this.enemies.indexOf(enemy), 1);
             this.activeEnemy = null;
-
             this.score += 10;
             scoreEl.innerText = this.score;
-
-            // Damped acceleration: decrease interval by 2ms instead of 20ms
             if (this.spawnInterval > 400) this.spawnInterval -= 2;
-
             if (this.requireSpace) {
                 this.waitingForSpace = true;
-                this.spaceIndicatorEl.classList.remove('hidden');
+                const spcInd = document.getElementById('space-indicator');
+                if (spcInd) spcInd.classList.remove('hidden');
             }
-        } else {
-            this.spawnDebris(enemy.x, enemy.y, 3, '#999');
-        }
+        } else this.spawnDebris(enemy.x, enemy.y, 3, '#999');
     }
 
     spawnDebris(x, y, count, color) {
-        for (let i = 0; i < count; i++) {
-            this.particles.push(new Particle(x, y, color));
-        }
+        for (let i = 0; i < count; i++) this.particles.push(new Particle(x, y, color));
     }
 
     update(dt) {
         if (this.state !== 'PLAYING') return;
 
-        // Check for mission complete
-        if (this.pool.length === 0 && this.enemies.length === 0 && this.state === 'PLAYING') {
-            this.showMissionComplete();
+        // Tüm kelimeler kullanıldı ve ekranda düşman kalmadı mı?
+        if (this.currentWordIndex >= this.pool.length && this.enemies.length === 0) {
+            this.showLevelComplete();
             return;
         }
 
         this.spawnTimer += dt;
         if (this.spawnTimer > this.spawnInterval) {
             this.spawnTimer = 0;
-            if (this.pool.length > 0) {
+            // Sadece henüz kullanılmamış kelimeler varsa spawn et
+            if (this.currentWordIndex < this.pool.length) {
                 const word = this.pool[this.currentWordIndex];
-                this.currentWordIndex = (this.currentWordIndex + 1) % this.pool.length;
+                this.currentWordIndex++;
                 const x = Math.random() * (this.width - 150) + 75;
                 this.enemies.push(new Meteor(x, -50, word, this.speedMultiplier));
             }
         }
 
         this.player.update(dt);
-
         this.enemies.forEach(e => {
             e.update(dt);
             if (e.y > this.height - 50) this.gameOver();
@@ -672,6 +1021,7 @@ class Game {
     loop(lastTime) {
         const now = performance.now();
         const dt = now - lastTime;
+        this.lastTime = now;
         this.update(dt);
         this.draw();
         requestAnimationFrame(() => this.loop(now));
@@ -683,9 +1033,9 @@ class Game {
         this.showGameOver();
         SoundManager.playExplosion();
         this.waitingForSpace = false;
-        this.spaceIndicatorEl.classList.add('hidden');
+        const spcInd = document.getElementById('space-indicator');
+        if (spcInd) spcInd.classList.add('hidden');
     }
-
 }
 
 class Player {

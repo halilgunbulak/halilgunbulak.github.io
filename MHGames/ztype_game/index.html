@@ -32,13 +32,16 @@
                 <div id="stats">
                     <span id="label-score">Score</span>: <span id="score">0</span>
                 </div>
+                <div id="level-stats">
+                    <span id="label-level">Level</span>: <span id="level-display">4</span>
+                </div>
                 <div id="space-indicator" class="hidden">BOŞLUĞA BAS</div>
                 <div id="menu-overlay">
                     <div class="language-switcher">
                         <button class="lang-btn active" data-lang="tr">TR</button>
                         <button class="lang-btn" data-lang="en">EN</button>
                     </div>
-                    <h1 id="menu-title">Z-TYPE KLONU</h1>
+                    <h1 id="menu-title">H&M - HI GAMES</h1>
                     <div class="menu-content">
                         <div class="setting-group">
                             <label id="label-source">Metin Kaynağı:</label>
@@ -84,14 +87,57 @@
                 <div id="game-over-screen" class="hidden">
                     <h1 id="go-title">GÖREV BAŞARISIZ</h1>
                     <p><span id="label-final-score">Final Skor</span>: <span id="final-score">0</span></p>
+                    <div class="stats-row">
+                        <p id="gameover-mistake-count-display">Hatalı Kelime: <span id="gameover-mistake-count">0</span></p>
+                    </div>
                     <div class="button-row">
                         <button id="restart-game-btn">YENİDEN BAŞLAT</button>
                         <button id="next-level-btn" class="hidden">SONRAKİ SEVİYE (HIZ ARTIR)</button>
+                        <button id="next-mission-btn" class="hidden">SONRAKİ GÖREV (YENİ METİN)</button>
                         <button id="review-mistakes-btn">HATALARI İNCELE</button>
+                    </div>
+                    <div class="button-row" style="margin-top: 10px;">
+                        <button id="gameover-retry-mistakes-btn" class="hidden">HATALI KELİMELERLE OYNA</button>
+                        <button id="gameover-new-text-btn">YENİ METİN SEÇ</button>
                     </div>
                     <button id="return-menu-btn"
                         style="margin-top: 10px; font-size: 18px; border-color: var(--neon-blue); color: var(--neon-blue);">MENÜYE
                         DÖN</button>
+                </div>
+
+                <div id="pause-screen" class="hidden">
+                    <h1 id="pause-title">OYUN DURAKLATILDI</h1>
+                    <div class="button-row">
+                        <button id="resume-btn">DEVAM ET</button>
+                        <button id="pause-to-menu-btn">MENÜYE DÖN</button>
+                    </div>
+                </div>
+
+                <div id="level-complete-screen" class="hidden">
+                    <h1 id="level-complete-title">SEVİYE TAMAMLANDI!</h1>
+                    <p><span id="label-current-score">Mevcut Skor</span>: <span id="current-score">0</span></p>
+                    <p id="level-complete-message">Tüm kelimeleri başarıyla tamamladınız!</p>
+                    <div class="stats-row">
+                        <p id="mistake-count-display">Hatalı Kelime: <span id="mistake-count">0</span></p>
+                    </div>
+                    <div class="button-row">
+                        <button id="increase-speed-btn">HIZI ARTIR VE DEVAM ET</button>
+                        <button id="new-text-btn">YENİ METİN İLE DEVAM ET</button>
+                    </div>
+                    <button id="retry-mistakes-btn" class="hidden" style="margin-top: 10px;">HATALI KELİMELERLE OYNA</button>
+                    <button id="level-complete-menu-btn"
+                        style="margin-top: 10px; font-size: 18px; border-color: var(--neon-blue); color: var(--neon-blue);">MENÜYE
+                        DÖN</button>
+                </div>
+
+                <div id="text-selection-screen" class="hidden">
+                    <h1 id="text-selection-title">METİN SEÇİN</h1>
+                    <p id="text-selection-message">Devam etmek için bir metin seçin:</p>
+                    <div id="text-list-container">
+                        <!-- Metin listesi JS tarafından doldurulacak -->
+                    </div>
+                    <button id="text-selection-cancel-btn"
+                        style="margin-top: 20px; font-size: 18px; border-color: var(--neon-red); color: var(--neon-red);">İPTAL</button>
                 </div>
             </div>
         </div>
@@ -106,6 +152,9 @@
         </aside>
 
     </div>
+
+    <!-- Protection Layer - En başta yüklensin -->
+    <script src="protection.js"></script>
 
     <script src="missions_tr.js"></script>
     <script src="missions_en.js"></script>
