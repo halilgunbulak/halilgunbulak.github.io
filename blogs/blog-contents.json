@@ -1,0 +1,181 @@
+{
+    "blog1": {
+        "title": "Web Geliştirme Yolculuğum",
+        "date": "2024-01-15",
+        "author": "Halil İbrahim GÜNBULAK",
+        "readTime": "5",
+        "tags": ["web", "javascript", "html", "css"],
+        "content": [
+            {
+                "text": "Merhaba! Bu yazımda sizlere web geliştirme yolculuğumu anlatacağım. Her şey basit bir HTML sayfası ile başladı..."
+            },
+            {
+                "image": "images/4.jpg",
+                "image_caption": "İlk web projelerimden biri"
+            },
+            {
+                "header": "Başlangıç: HTML ve CSS",
+                "text": "Web geliştirmeye HTML ve CSS öğrenerek başladım. İlk başta çok basit sayfalar yapıyordum ama zamanla daha karmaşık tasarımlar yapmaya başladım."
+            },
+            {
+                "small_header": "HTML Nedir?",
+                "text": "HTML (HyperText Markup Language), web sayfalarının iskeletini oluşturan işaretleme dilidir. Sayfanın yapısını ve içeriğini tanımlar."
+            },
+            {
+                "list": [
+                    "Semantic HTML kullanımı",
+                    "Erişilebilirlik standartları",
+                    "SEO dostu yapı",
+                    "Responsive tasarım temelleri"
+                ]
+            },
+            {
+                "quote": "Kod yazmak bir sanattır. Her satır, bir düşüncenin somutlaşmış halidir."
+            },
+            {
+                "header": "JavaScript ile Dinamik Web",
+                "text": "HTML ve CSS'i öğrendikten sonra JavaScript ile tanıştım. Bu, web sayfalarıma hayat verdi. Artık kullanıcı etkileşimleri oluşturabiliyordum."
+            },
+            {
+                "image": "images/background.jpg",
+                "image_alt": "JavaScript kod örneği"
+            },
+            {
+                "small_header": "Öğrendiğim Teknolojiler",
+                "list": [
+                    "Vanilla JavaScript (ES6+)",
+                    "jQuery kütüphanesi",
+                    "AJAX ve Fetch API",
+                    "DOM manipülasyonu",
+                    "Event handling"
+                ]
+            },
+            {
+                "header": "Sonuç",
+                "text": "Web geliştirme yolculuğum hala devam ediyor. Her gün yeni şeyler öğreniyorum ve kendimi geliştiriyorum. Sizlere de bu yolculukta başarılar diliyorum!"
+            }
+        ]
+    },
+    "blog2": {
+        "title": "Flutter ile Mobil Uygulama Geliştirme",
+        "date": "2024-01-10",
+        "author": "Halil İbrahim GÜNBULAK",
+        "readTime": "8",
+        "tags": ["flutter", "dart", "mobile", "app"],
+        "content": [
+            {
+                "text": "Flutter, Google tarafından geliştirilen açık kaynaklı bir UI framework'üdür. Tek bir kod tabanı ile hem iOS hem de Android için uygulama geliştirebilirsiniz."
+            },
+            {
+                "image": "images/1.jpg",
+                "image_caption": "Flutter ile geliştirdiğim uygulamalardan biri"
+            },
+            {
+                "header": "Flutter'ı Neden Seçtim?",
+                "list": [
+                    "Cross-platform geliştirme imkanı",
+                    "Hot reload özelliği ile hızlı geliştirme",
+                    "Zengin widget kütüphanesi",
+                    "Yüksek performans",
+                    "Güçlü topluluk desteği"
+                ]
+            },
+            {
+                "quote": "Flutter ile bir kez yaz, her yerde çalıştır!"
+            },
+            {
+                "header": "Dart Programlama Dili",
+                "text": "Flutter, Dart programlama dilini kullanır. Dart, modern ve nesne yönelimli bir dildir. JavaScript'e benzer bir söz dizimine sahiptir."
+            },
+            {
+                "small_header": "Dart'ın Avantajları",
+                "list": [
+                    "Kolay öğrenilebilir söz dizimi",
+                    "Güçlü tip sistemi",
+                    "Asenkron programlama desteği",
+                    "Null safety özelliği"
+                ]
+            },
+            {
+                "header": "İlk Flutter Projem",
+                "text": "İlk Flutter projemde basit bir todo uygulaması yaptım. Bu proje sayesinde Flutter'ın temellerini öğrendim ve widget yapısını anladım."
+            },
+            {
+                "image": "images/background2.jpg"
+            },
+            {
+                "header": "Tavsiyeler",
+                "text": "Flutter öğrenmek isteyenlere tavsiyem, resmi dokümantasyonu takip etmeleri ve küçük projelerle başlamaları. Practice makes perfect!"
+            }
+        ]
+    },
+    "blog3": {
+        "title": "Yapay Zeka ve Doğal Dil İşleme",
+        "date": "2024-01-05",
+        "author": "Halil İbrahim GÜNBULAK",
+        "readTime": "10",
+        "tags": ["ai", "nlp", "python", "machine-learning"],
+        "content": [
+            {
+                "text": "Yapay zeka ve özellikle doğal dil işleme (NLP), günümüzün en heyecan verici teknoloji alanlarından biri. Bu yazıda NLP dünyasına yaptığım yolculuğu anlatacağım."
+            },
+            {
+                "image": "images/3.jpg",
+                "image_caption": "NLP projeleri üzerinde çalışırken"
+            },
+            {
+                "header": "NLP Nedir?",
+                "text": "Natural Language Processing (Doğal Dil İşleme), bilgisayarların insan dilini anlaması, yorumlaması ve üretmesi için kullanılan yapay zeka dalıdır."
+            },
+            {
+                "quote": "Bilgisayarların insan dilini anlaması, yapay zekanın en büyük başarılarından biridir."
+            },
+            {
+                "header": "NLP Kullanım Alanları",
+                "list": [
+                    "Chatbot'lar ve sanal asistanlar",
+                    "Duygu analizi",
+                    "Makine çevirisi",
+                    "Metin özetleme",
+                    "Spam filtreleme",
+                    "Ses tanıma"
+                ]
+            },
+            {
+                "small_header": "Kullandığım Kütüphaneler",
+                "text": "Python ekosisteminde NLP için birçok harika kütüphane var:"
+            },
+            {
+                "list": [
+                    "NLTK - Natural Language Toolkit",
+                    "spaCy - Endüstriyel NLP",
+                    "Transformers - Hugging Face",
+                    "Gensim - Topic modeling",
+                    "TextBlob - Basit NLP işlemleri"
+                ]
+            },
+            {
+                "header": "İlk NLP Projem",
+                "text": "İlk NLP projemde Twitter verilerini kullanarak duygu analizi yaptım. Kullanıcıların tweet'lerini analiz ederek pozitif, negatif veya nötr olduklarını belirlemeye çalıştım."
+            },
+            {
+                "image": "images/2.jpg"
+            },
+            {
+                "header": "Gelecek Planlarım",
+                "text": "NLP alanında kendimi daha da geliştirmeyi planlıyorum. Özellikle transformer modelleri ve GPT gibi büyük dil modelleri üzerinde çalışmak istiyorum."
+            },
+            {
+                "small_header": "Öğrenmek İstediğim Konular",
+                "list": [
+                    "BERT ve GPT modelleri",
+                    "Transfer learning",
+                    "Fine-tuning teknikleri",
+                    "Multilingual NLP",
+                    "Question Answering sistemleri"
+                ]
+            }
+        ]
+    }
+}
+
