@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON Test</title>
+</head>
+<body>
+    <h1>JSON Yükleme Testi</h1>
+    <div id="result"></div>
+
+    <script>
+        async function testJSON() {
+            const resultDiv = document.getElementById('result');
+            try {
+                resultDiv.innerHTML = '<p>Yükleniyor...</p>';
+                const response = await fetch('files/language_tr_en.json');
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <p style="color: green;">✅ Başarılı!</p>
+                    <p>Toplam kelime sayısı: ${data.length}</p>
+                    <p>İlk kelime: ${data[0].word} - ${data[0].kelime}</p>
+                    <p>Ses dosyası: ${data[0].us}</p>
+                `;
+                console.log('JSON Data:', data);
+            } catch (e) {
+                resultDiv.innerHTML = `<p style="color: red;">❌ Hata: ${e.message}</p>`;
+                console.error('Error:', e);
+            }
+        }
+        testJSON();
+    </script>
+</body>
+</html>
+

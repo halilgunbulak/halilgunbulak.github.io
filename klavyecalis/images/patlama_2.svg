@@ -1,0 +1,29 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- Patlama Frame 2 - Genişleme -->
+  <defs>
+    <radialGradient id="explosion2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffff00;stop-opacity:0.8" />
+      <stop offset="40%" style="stop-color:#ff6600;stop-opacity:0.7" />
+      <stop offset="100%" style="stop-color:#ff0000;stop-opacity:0.2" />
+    </radialGradient>
+  </defs>
+  
+  <!-- Ana patlama çemberi - daha büyük -->
+  <circle cx="50" cy="50" r="35" fill="url(#explosion2)" opacity="0.7"/>
+  
+  <!-- İç parlama -->
+  <circle cx="50" cy="50" r="18" fill="#ffff88" opacity="0.6"/>
+  
+  <!-- Dışa doğru saçılan parçacıklar -->
+  <circle cx="50" cy="15" r="4" fill="#ff8800" opacity="0.8"/>
+  <circle cx="85" cy="50" r="4" fill="#ff8800" opacity="0.8"/>
+  <circle cx="50" cy="85" r="4" fill="#ff8800" opacity="0.8"/>
+  <circle cx="15" cy="50" r="4" fill="#ff8800" opacity="0.8"/>
+  
+  <!-- Çapraz parçacıklar -->
+  <circle cx="70" cy="30" r="3" fill="#ff6600" opacity="0.7"/>
+  <circle cx="70" cy="70" r="3" fill="#ff6600" opacity="0.7"/>
+  <circle cx="30" cy="70" r="3" fill="#ff6600" opacity="0.7"/>
+  <circle cx="30" cy="30" r="3" fill="#ff6600" opacity="0.7"/>
+</svg>
+
