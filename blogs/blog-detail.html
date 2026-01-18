@@ -3,12 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blog - HİG COMPANY</title>
+
+    <!-- Primary Meta Tags (JavaScript ile dinamik güncellenecek) -->
+    <title>Blog - Halil İbrahim GÜNBULAK</title>
+    <meta name="title" content="Blog - Halil İbrahim GÜNBULAK">
+    <meta name="description" content="Read my latest blog posts about web development, mobile development, and programming.">
+    <meta name="keywords" content="blog, programming, web development, mobile development, tutorial">
+    <meta name="author" content="Halil İbrahim GÜNBULAK">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph / Facebook (JavaScript ile dinamik güncellenecek) -->
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="">
+    <meta property="og:title" content="Blog - Halil İbrahim GÜNBULAK">
+    <meta property="og:description" content="Read my latest blog posts about web development, mobile development, and programming.">
+    <meta property="og:image" content="">
+    <meta property="og:site_name" content="Halil İbrahim GÜNBULAK Blog">
+
+    <!-- Twitter (JavaScript ile dinamik güncellenecek) -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="">
+    <meta property="twitter:title" content="Blog - Halil İbrahim GÜNBULAK">
+    <meta property="twitter:description" content="Read my latest blog posts about web development, mobile development, and programming.">
+    <meta property="twitter:image" content="">
+
+    <!-- Canonical URL (JavaScript ile dinamik güncellenecek) -->
+    <link rel="canonical" href="">
+
+    <!-- Favicon -->
     <link rel="shortcut icon" href="../favicon.ico" />
+    <link rel="icon" type="image/x-icon" href="../favicon.ico">
     <link rel="stylesheet" href="../main.css">
     <link rel="stylesheet" href="blog-detail.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6460012519509265"
+         crossorigin="anonymous"></script>
 </head>
 <body>
     <!-- Navigation -->
@@ -26,16 +58,43 @@
         </div>
     </nav>
 
-    <!-- Blog Content -->
+    <!-- Blog Content with Ads -->
     <section class="blog-detail">
-        <div class="max-width">
-            <div id="blog-content">
-                <!-- Blog içeriği JavaScript ile yüklenecek -->
-                <div class="loading">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>Blog yükleniyor...</p>
+        <div class="blog-container">
+            <!-- Sol Reklam Alanı -->
+            <aside class="ad-left">
+                <!-- Google AdSense - Sol Reklam (300x600) -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:600px"
+                     data-ad-client="ca-pub-6460012519509265"
+                     data-ad-slot="8154014030"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </aside>
+
+            <!-- Blog İçeriği -->
+            <div class="blog-content-wrapper">
+                <div id="blog-content">
+                    <!-- Blog içeriği JavaScript ile yüklenecek -->
+                    <div class="loading">
+                        <i class="fas fa-spinner fa-spin"></i>
+                        <p>Blog yükleniyor...</p>
+                    </div>
                 </div>
             </div>
+
+            <!-- Sağ Reklam Alanı -->
+            <aside class="ad-right">
+                <!-- Google AdSense - Sağ Reklam (300x600) -->
+                <ins class="adsbygoogle"
+                     style="display:inline-block;width:300px;height:600px"
+                     data-ad-client="ca-pub-6460012519509265"
+                     data-ad-slot="8154014030"></ins>
+                <script>
+                     (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </aside>
         </div>
     </section>
 

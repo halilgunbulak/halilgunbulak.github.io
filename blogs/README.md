@@ -2,59 +2,42 @@
 
 ## 📝 Yeni Blog Ekleme
 
-### 1. Adım: Blog Kartı Oluşturma (Ana Sayfa)
+### Tek Dosya Sistemi! 🎉
 
-`blogs/blogs.json` dosyasına yeni blog kartı ekleyin:
+Artık sadece **`blogs/blog-contents-data.js`** dosyasını güncellemeniz yeterli!
+Bu dosya hem ana sayfa kartlarını hem de detay sayfasını besler.
 
-```json
-{
-    "id": 4,
-    "blogId": "blog4",
+### Blog Ekleme Adımları:
+
+`blogs/blog-contents-data.js` dosyasına yeni blog ekleyin:
+
+```javascript
+"blog13": {
+    "id": 13,
+    "blogId": "blog13",
     "title": "Blog Başlığı",
-    "description": "Kısa açıklama (1-2 cümle)",
+    "description": "Kısa açıklama (ana sayfada görünür)",
     "date": "2024-01-20",
     "image": "images/resim.jpg",
-    "tags": ["etiket1", "etiket2", "etiket3"]
-}
-```
-
-### 2. Adım: Blog İçeriği Oluşturma (Detay Sayfası)
-
-`blogs/blog-contents.json` dosyasına blog içeriğini ekleyin:
-
-```json
-"blog4": {
-    "title": "Blog Başlığı",
-    "date": "2024-01-20",
     "author": "Halil İbrahim GÜNBULAK",
     "readTime": "5",
     "tags": ["etiket1", "etiket2"],
     "content": [
-        {
-            "text": "Giriş paragrafı buraya..."
-        },
-        {
-            "header": "Ana Başlık"
-        },
-        {
-            "image": "images/resim.jpg",
-            "image_caption": "Resim açıklaması (opsiyonel)"
-        },
-        {
-            "small_header": "Alt Başlık"
-        },
-        {
-            "text": "Paragraf metni..."
-        },
-        {
-            "quote": "Alıntı metni"
-        },
-        {
-            "list": ["Madde 1", "Madde 2", "Madde 3"]
-        }
+        { "text": "Giriş paragrafı buraya..." },
+        { "header": "Ana Başlık" },
+        { "image": "images/resim.jpg", "image_caption": "Resim açıklaması (opsiyonel)" },
+        { "small_header": "Alt Başlık" },
+        { "text": "Paragraf metni..." },
+        { "quote": "Alıntı metni" },
+        { "list": ["Madde 1", "Madde 2", "Madde 3"] }
     ]
 }
 ```
+
+**Not:**
+- `id` ve `blogId` aynı olmalı (örn: "blog13")
+- `description` ana sayfada kart üzerinde görünür
+- `content` detay sayfasında gösterilir
 
 ## 📦 İçerik Blok Tipleri
 
@@ -114,6 +97,9 @@ Blog içeriğinde kullanabileceğiniz tüm blok tipleri:
 - ✅ Tarihe göre otomatik sıralama
 - ✅ Responsive tasarım
 - ✅ Ayrı detay sayfası
+- ✅ **Reklam alanları** (Sol + Sağ dikey reklamlar - 160x600)
+- ✅ **Sticky reklamlar** (Scroll sırasında sabit kalır)
+- ✅ **Responsive reklam** (Mobilde gizlenir)
 - ✅ Etiket sistemi
 - ✅ Okuma süresi gösterimi
 - ✅ Animasyonlu içerik yükleme
@@ -124,15 +110,21 @@ Blog içeriğinde kullanabileceğiniz tüm blok tipleri:
 
 ```
 blogs/
-├── blogs.json           # Ana sayfa blog kartları
-├── blog-contents.json   # Detaylı blog içerikleri
-├── blog.css            # Ana sayfa stilleri
-├── blog.js             # Ana sayfa JavaScript
-├── blog-detail.html    # Blog detay sayfası
-├── blog-detail.css     # Detay sayfası stilleri
-├── blog-detail.js      # Detay sayfası JavaScript
-└── README.md           # Bu dosya
+├── blog-contents-data.js  # ⭐ TEK DOSYA - Tüm blog verileri (ana sayfa + detay)
+├── blog.css              # Ana sayfa stilleri
+├── blog.js               # Ana sayfa JavaScript
+├── blog-detail.html      # Blog detay sayfası (reklam alanları dahil)
+├── blog-detail.css       # Detay sayfası stilleri (reklam stilleri dahil)
+├── blog-detail.js        # Detay sayfası JavaScript
+├── ADSENSE_SETUP.md      # 📢 Google AdSense entegrasyon rehberi
+├── blogs.json            # (Opsiyonel - Fallback için)
+├── blog-contents.json    # (Opsiyonel - Fallback için)
+└── README.md             # Bu dosya
 ```
+
+**Önemli:**
+- Artık sadece `blog-contents-data.js` dosyasını güncellemeniz yeterli!
+- Reklam entegrasyonu için `ADSENSE_SETUP.md` dosyasına bakın
 
 ## 🔧 Özelleştirme
 
@@ -167,27 +159,20 @@ const scrollAmount = container.clientWidth * 0.8; // 0.8 değerini değiştirin 
 8. **Grid düzeni:** 4 satır x 2 kolon = 8 blog görünür, sağa kaydırarak diğerlerini görebilirsiniz
 9. **Çok sayıda blog:** 30-40 blog ekleyebilirsiniz, sistem otomatik olarak yatay kaydırma ekler
 10. **CORS hatası:** Yerel geliştirmede `python3 -m http.server 8000` ile sunucu başlatın
+11. **Reklamlar:** Yerel ortamda placeholder görünür, canlıda AdSense kodunu ekleyin
+12. **Reklam boyutu:** 160x600 (Wide Skyscraper) önerilir
 
 ## 📝 Örnek Blog Ekleme
 
-### blogs.json'a ekle:
-```json
-{
-    "id": 4,
+### Sadece blog-contents-data.js'e ekle:
+```javascript
+"yeni-blog": {
+    "id": 13,
     "blogId": "yeni-blog",
     "title": "Yeni Blog Yazım",
     "description": "Bu benim yeni blog yazım",
     "date": "2024-01-20",
     "image": "images/yeni-resim.jpg",
-    "tags": ["yeni", "blog"]
-}
-```
-
-### blog-contents.json'a ekle:
-```json
-"yeni-blog": {
-    "title": "Yeni Blog Yazım",
-    "date": "2024-01-20",
     "author": "Halil İbrahim GÜNBULAK",
     "readTime": "5",
     "tags": ["yeni", "blog"],
@@ -202,5 +187,5 @@ const scrollAmount = container.clientWidth * 0.8; // 0.8 değerini değiştirin 
 }
 ```
 
-Artık blogunuz hazır! 🎉
+**Tek dosya, tek güncelleme!** Artık blogunuz hem ana sayfada hem detay sayfasında görünür! 🎉
 

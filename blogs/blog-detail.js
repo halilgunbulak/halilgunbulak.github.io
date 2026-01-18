@@ -4,6 +4,112 @@ function getBlogIdFromURL() {
     return urlParams.get('id');
 }
 
+// SEO Meta Taglarını Güncelle
+function updateSEOMetaTags(blog, blogId) {
+    const baseUrl = window.location.origin + window.location.pathname.replace('blog-detail.html', '');
+    const blogUrl = `${window.location.origin}${window.location.pathname}?id=${blogId}`;
+    const imageUrl = blog.image ? `${baseUrl}${blog.image}` : '';
+
+    // Title
+    document.title = `${blog.title} - Halil İbrahim GÜNBULAK`;
+
+    // Meta Description
+    const description = blog.description || blog.content[0]?.text?.substring(0, 160) || 'Blog post by Halil İbrahim GÜNBULAK';
+    updateMetaTag('name', 'description', description);
+    updateMetaTag('name', 'title', blog.title);
+
+    // Keywords
+    const keywords = blog.tags ? blog.tags.join(', ') : 'blog, programming';
+    updateMetaTag('name', 'keywords', keywords);
+
+    // Open Graph
+    updateMetaTag('property', 'og:title', blog.title);
+    updateMetaTag('property', 'og:description', description);
+    updateMetaTag('property', 'og:url', blogUrl);
+    updateMetaTag('property', 'og:image', imageUrl);
+    updateMetaTag('property', 'article:published_time', blog.date);
+    updateMetaTag('property', 'article:author', blog.author || 'Halil İbrahim GÜNBULAK');
+
+    // Twitter
+    updateMetaTag('property', 'twitter:title', blog.title);
+    updateMetaTag('property', 'twitter:description', description);
+    updateMetaTag('property', 'twitter:url', blogUrl);
+    updateMetaTag('property', 'twitter:image', imageUrl);
+
+    // Canonical URL
+    const canonicalLink = document.querySelector('link[rel="canonical"]');
+    if (canonicalLink) {
+        canonicalLink.href = blogUrl;
+    } else {
+        const newCanonical = document.createElement('link');
+        newCanonical.rel = 'canonical';
+        newCanonical.href = blogUrl;
+        document.head.appendChild(newCanonical);
+    }
+
+    // JSON-LD Structured Data
+    addBlogStructuredData(blog, blogId, blogUrl, imageUrl);
+}
+
+// Meta Tag Güncelleme Yardımcı Fonksiyonu
+function updateMetaTag(attribute, attributeValue, content) {
+    let element = document.querySelector(`meta[${attribute}="${attributeValue}"]`);
+    if (element) {
+        element.setAttribute('content', content);
+    } else {
+        element = document.createElement('meta');
+        element.setAttribute(attribute, attributeValue);
+        element.setAttribute('content', content);
+        document.head.appendChild(element);
+    }
+}
+
+// Blog için JSON-LD Structured Data Ekle
+function addBlogStructuredData(blog, blogId, blogUrl, imageUrl) {
+    // Eski structured data varsa kaldır
+    const oldScript = document.querySelector('script[type="application/ld+json"]#blog-structured-data');
+    if (oldScript) {
+        oldScript.remove();
+    }
+
+    const structuredData = {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": blog.title,
+        "description": blog.description || blog.content[0]?.text?.substring(0, 160) || '',
+        "image": imageUrl,
+        "datePublished": blog.date,
+        "dateModified": blog.date,
+        "author": {
+            "@type": "Person",
+            "name": blog.author || "Halil İbrahim GÜNBULAK",
+            "url": window.location.origin
+        },
+        "publisher": {
+            "@type": "Person",
+            "name": "Halil İbrahim GÜNBULAK",
+            "logo": {
+                "@type": "ImageObject",
+                "url": `${window.location.origin}/images/logo.jpg`
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": blogUrl
+        },
+        "keywords": blog.tags ? blog.tags.join(', ') : '',
+        "articleBody": blog.content.map(block => block.text || '').join(' ').substring(0, 500),
+        "wordCount": blog.content.map(block => block.text || '').join(' ').split(' ').length,
+        "timeRequired": `PT${blog.readTime || 5}M`
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.id = 'blog-structured-data';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+}
+
 // Blog detaylarını yükle
 $(document).ready(function() {
     const blogId = getBlogIdFromURL();
@@ -27,6 +133,7 @@ function loadBlogDetail(blogId) {
     if (typeof blogContentsData !== 'undefined') {
         const blog = blogContentsData[blogId];
         if (blog) {
+            updateSEOMetaTags(blog, blogId);
             renderBlogContent(blog);
         } else {
             showError('Blog bulunamadı!');
@@ -38,6 +145,7 @@ function loadBlogDetail(blogId) {
             .then(data => {
                 const blog = data[blogId];
                 if (blog) {
+                    updateSEOMetaTags(blog, blogId);
                     renderBlogContent(blog);
                 } else {
                     showError('Blog bulunamadı!');

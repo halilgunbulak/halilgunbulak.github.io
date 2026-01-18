@@ -4,21 +4,22 @@ $(document).ready(function(){
 });
 
 function loadBlogs() {
-    // blogsData değişkeni blogs-data.js dosyasından gelir
-    if (typeof blogsData !== 'undefined') {
-        displayBlogs(blogsData);
-        initializeBlogCarousel();
+    // blogContentsData değişkeni blog-contents-data.js dosyasından gelir
+    if (typeof blogContentsData !== 'undefined') {
+        // Object'i array'e çevir
+        const blogsArray = Object.values(blogContentsData);
+        displayBlogs(blogsArray);
     } else {
         // Fallback: JSON dosyasından yükle (sunucu gerektirir)
-        fetch('blogs/blogs.json')
+        fetch('blogs/blog-contents.json')
             .then(response => response.json())
-            .then(blogs => {
-                displayBlogs(blogs);
-                initializeBlogCarousel();
+            .then(data => {
+                const blogsArray = Object.values(data);
+                displayBlogs(blogsArray);
             })
             .catch(error => {
                 console.error('Blog yüklenirken hata oluştu:', error);
-                console.log('Lütfen bir HTTP sunucusu kullanın veya blogs-data.js dosyasını index.html\'e ekleyin');
+                console.log('Lütfen bir HTTP sunucusu kullanın veya blog-contents-data.js dosyasını index.html\'e ekleyin');
             });
     }
 }
